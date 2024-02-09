@@ -49,6 +49,26 @@ const login = async function(email, password) {
 		if (lastname === undefined)
 			throw new Error('lastname not found in HTTP response');
 		
+		const administrator = result['administrator'];;
+		if (administrator === undefined)
+			throw new Error('administrator not found in HTTP response');
+		
+		const parkRole = result['parkRole'];;
+		if (parkRole === undefined)
+			throw new Error('parkRole not found in HTTP response');
+		
+		const stockRole = result['stockRole'];;
+		if (stockRole === undefined)
+			throw new Error('stockRole not found in HTTP response');
+		
+		const active = result['active'];;
+		if (active === undefined)
+			throw new Error('active not found in HTTP response');
+		
+		const accountLocked = result['accountLocked'];;
+		if (accountLocked === undefined)
+			throw new Error('accountLocked not found in HTTP response');
+		
 
 		const refreshToken = result['refresh-token'];;
 		if (refreshToken === undefined)
@@ -58,7 +78,7 @@ const login = async function(email, password) {
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
 
-		const account = { userId, email,firstname,lastname,}
+		const account = { userId, email,firstname,lastname,administrator,parkRole,stockRole,active,accountLocked,}
 		apiTools.setAccountAndTokens(account, accessToken, refreshToken)
 
 		return { ok: true, ...account };
@@ -90,7 +110,7 @@ const logout = async function() {
 	}
 }
 
-const register = async function(email, password, firstname, lastname) {
+const register = async function(email, password, firstname, lastname, administrator, parkRole, stockRole, active, accountLocked) {
 	if (email === undefined)
 		throw new Error("[email] argument is missing");
 	if (password === undefined)
@@ -99,6 +119,16 @@ const register = async function(email, password, firstname, lastname) {
 		throw new Error("[firstname] argument is missing");
 	if (lastname === undefined)
 		throw new Error("[lastname] argument is missing");
+	if (administrator === undefined)
+		throw new Error("[administrator] argument is missing");
+	if (parkRole === undefined)
+		throw new Error("[parkRole] argument is missing");
+	if (stockRole === undefined)
+		throw new Error("[stockRole] argument is missing");
+	if (active === undefined)
+		throw new Error("[active] argument is missing");
+	if (accountLocked === undefined)
+		throw new Error("[accountLocked] argument is missing");
 	const url = `${apiVersion}/auth/register`;
 	try {
 		// TODO control email and password values are not empty
@@ -107,6 +137,11 @@ const register = async function(email, password, firstname, lastname) {
 			password,
 			firstname,
 			lastname,
+			administrator,
+			parkRole,
+			stockRole,
+			active,
+			accountLocked,
 			}
 		const result = await apiTools.request(url, 'POST',  requestBody, null, false);
 		const userId = result['userId'];;
@@ -118,7 +153,7 @@ const register = async function(email, password, firstname, lastname) {
 		const accessToken = result['access-token'];;
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
-		const account = { userId, email,firstname,lastname,}
+		const account = { userId, email,firstname,lastname,administrator,parkRole,stockRole,active,accountLocked,}
 		apiTools.setAccountAndTokens(account, accessToken, refreshToken)
 
 		return {
