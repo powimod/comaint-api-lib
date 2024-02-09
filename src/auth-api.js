@@ -79,7 +79,9 @@ const login = async function(email, password) {
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
 
-		const account = { userId, email,firstname,lastname,administrator,parkRole,stockRole,active,accountLocked,}
+		// TODO cleanup
+		//const account = { userId, email,firstname,lastname,administrator,parkRole,stockRole,active,accountLocked,}
+		const account = { userId, email,firstname,lastname}
 		apiTools.setAccountAndTokens(account, accessToken, refreshToken)
 
 		return { ok: true, ...account };
@@ -160,7 +162,9 @@ const register = async function(email, password, firstname, lastname ) {
 		const accessToken = result['access-token'];;
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
-		const account = { userId, email,firstname,lastname,administrator,parkRole,stockRole,active,accountLocked,}
+		//TODO cleanup
+		//const account = { userId, email,firstname,lastname,administrator,parkRole,stockRole,active,accountLocked,}
+		const account = { userId, email,firstname,lastname}
 		apiTools.setAccountAndTokens(account, accessToken, refreshToken)
 
 		return {
