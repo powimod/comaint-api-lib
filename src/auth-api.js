@@ -40,7 +40,6 @@ const login = async function(email, password) {
 		if (userId === undefined)
 			throw new Error('userId not found in HTTP response');
 
-		
 		const firstname = result['firstname'];;
 		if (firstname === undefined)
 			throw new Error('firstname not found in HTTP response');
@@ -49,6 +48,7 @@ const login = async function(email, password) {
 		if (lastname === undefined)
 			throw new Error('lastname not found in HTTP response');
 		
+/* TODO cleanup		
 		const administrator = result['administrator'];;
 		if (administrator === undefined)
 			throw new Error('administrator not found in HTTP response');
@@ -68,6 +68,7 @@ const login = async function(email, password) {
 		const accountLocked = result['accountLocked'];;
 		if (accountLocked === undefined)
 			throw new Error('accountLocked not found in HTTP response');
+			*/
 		
 
 		const refreshToken = result['refresh-token'];;
@@ -110,7 +111,9 @@ const logout = async function() {
 	}
 }
 
-const register = async function(email, password, firstname, lastname, administrator, parkRole, stockRole, active, accountLocked) {
+// TODO cleanup
+//const register = async function(email, password, firstname, lastname, administrator, parkRole, stockRole, active, accountLocked) {
+const register = async function(email, password, firstname, lastname ) {
 	if (email === undefined)
 		throw new Error("[email] argument is missing");
 	if (password === undefined)
@@ -119,6 +122,7 @@ const register = async function(email, password, firstname, lastname, administra
 		throw new Error("[firstname] argument is missing");
 	if (lastname === undefined)
 		throw new Error("[lastname] argument is missing");
+	/* TODO cleanup
 	if (administrator === undefined)
 		throw new Error("[administrator] argument is missing");
 	if (parkRole === undefined)
@@ -129,6 +133,7 @@ const register = async function(email, password, firstname, lastname, administra
 		throw new Error("[active] argument is missing");
 	if (accountLocked === undefined)
 		throw new Error("[accountLocked] argument is missing");
+		*/
 	const url = `${apiVersion}/auth/register`;
 	try {
 		// TODO control email and password values are not empty
@@ -137,11 +142,13 @@ const register = async function(email, password, firstname, lastname, administra
 			password,
 			firstname,
 			lastname,
+			/* TODO cleanup
 			administrator,
 			parkRole,
 			stockRole,
 			active,
 			accountLocked,
+			*/
 			}
 		const result = await apiTools.request(url, 'POST',  requestBody, null, false);
 		const userId = result['userId'];;
