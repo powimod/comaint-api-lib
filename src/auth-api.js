@@ -200,6 +200,42 @@ const unlockAccount = async function(validationCode) {
 	}
 }
 
+const sendForgottenPasswordValidationCode = async function(email) {
+	if (email === undefined)
+		throw new Error("[email] argument is missing")
+	const url = `${apiVersion}/auth/forgotten-password/send-code`
+	try {
+		const result = await apiTools.request(url, 'POST', {email}, null, true)
+		return { ok: true, message: result.message}
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
+const changePassword = async function(email, newPassword, validationCode) {
+	if (email === undefined)
+		throw new Error("[email] argument is missing")
+	if (newPassword === undefined)
+		throw new Error("[newPassword] argument is missing")
+	if (validationCode === undefined)
+		throw new Error("[validationCode] argument is missing")
+	const url = `${apiVersion}/auth/forgotten-password/change-password`
+	try {
+		const result = await apiTools.request(url, 'POST', { email, newPassword, validationCode}, null)
+		return { ok: true, changed: result.changed}
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
 
 const authApi = {
 	login,
@@ -208,6 +244,8 @@ const authApi = {
 	validateRegistration,
 	getContext,
 	sendUnlockAccountValidationCode,
-	unlockAccount
+	unlockAccount,
+	sendForgottenPasswordValidationCode,
+	changePassword 
 }
 export default authApi;
