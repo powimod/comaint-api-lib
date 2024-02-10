@@ -143,6 +143,7 @@ const validateRegistration = async function(validationCode) {
 			validationCode: validationCode
 		};
 		const result = await apiTools.request(url, 'POST',  requestBody, null, true);
+		console.log(result)
 		return {ok: true};
 	}
 	catch (error) {
@@ -169,12 +170,44 @@ const getContext = async function() {
 	}
 }
 
+const sendUnlockAccountValidationCode = async function() {
+	const url = `${apiVersion}/auth/locked-account/send-code`
+	try {
+		const result = await apiTools.request(url, 'POST', null, null, true)
+		return { ok: true, message: result.message}
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
+const unlockAccount = async function(validationCode) {
+	if (validationCode === undefined)
+		throw new Error("[validationCode] argument is missing")
+	const url = `${apiVersion}/auth/locked-account/validate-code`
+	try {
+		const result = await apiTools.request(url, 'POST', { validationCode}, null)
+		return { ok: true, isValid: result.isValid }
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
 
 const authApi = {
-	login: login,
-	logout: logout,
-	register: register,
-	validateRegistration : validateRegistration,
-	getContext: getContext
+	login,
+	logout,
+	register,
+	validateRegistration,
+	getContext,
+	sendUnlockAccountValidationCode,
+	unlockAccount
 }
 export default authApi;
