@@ -15,16 +15,14 @@
  */
 
 'use script';
-const assert = require('assert');
-const ApiToolSingleton = require('./api-tools.js');
-const apiTool = ApiToolSingleton.getInstance();
-const ModelSingleton = require('./model.js');
-const model  = ModelSingleton.getInstance();
+import ApiToolsSingleton from './api-tools'
+const apiTool = ApiToolsSingleton.getInstance()
+const apiVersion= 'v1';
 
-exports.getOfferList = async function (filters, params) {
-	assert(filters !== undefined);
-	assert(params !== undefined);
-	const url = 'offer/list';
+const getOfferList = async function (filters, params) {
+	const url = `${apiVersion}/offer/list`
+	if (! params)
+		params = {}
 	/* TODO cleanup
 	for (const filter of Object.keys(filters)) 
 		url.searchParams.append(filter, filters[filter]);
@@ -47,9 +45,7 @@ exports.getOfferList = async function (filters, params) {
 	}
 }
 
-exports.getOfferDetails = async function (idOffer, params) {
-	assert(idOffer !== undefined);
-	assert(params !== undefined);
+const getOfferDetails = async function (idOffer, params) {
 	if (isNaN(idOffer))
 		throw new Error('Argument <idOffer> is not a number');
 	const url = `offer/${idOffer}`;
@@ -68,3 +64,8 @@ exports.getOfferDetails = async function (idOffer, params) {
 	}
 }
 
+const offerApi = {
+	getOfferList,
+	getOfferDetails,
+}
+export default offerApi;
