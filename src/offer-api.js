@@ -48,7 +48,7 @@ const getOfferList = async function (filters, params) {
 const getOfferDetails = async function (idOffer, params) {
 	if (isNaN(idOffer))
 		throw new Error('Argument <idOffer> is not a number');
-	const url = `offer/${idOffer}`;
+	const url = `${apiVersion}/offer/${idOffer}`;
 	try {
 		const result = await apiTool.request(url, 'GET', null, null);
 		const offer = result.offer;
@@ -64,8 +64,30 @@ const getOfferDetails = async function (idOffer, params) {
 	}
 }
 
+const editOffer = async function (offer) {
+	if (typeof(offer) !== 'object')
+		throw new Error('Argument <offer> is not an object');
+	const url = `${apiVersion}/offer/edit`;
+	try {
+		const result = await apiTool.request(url, 'POST', { offer }, null);
+		offer = result.offer;
+		if (offer === undefined)
+			throw new Error('Offer not found is HTTP response');
+		return {ok: true, offer: offer};
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		};
+	}
+}
+
+
+
 const offerApi = {
 	getOfferList,
 	getOfferDetails,
+	editOffer 
 }
 export default offerApi;
