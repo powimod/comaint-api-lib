@@ -4,24 +4,7 @@ function rawError(error, infos = null) {
         return `${error} : ${JSON.stringify(infos)}`
 }
 
-const controlObject = (objDef, object, i18n_t = null) => {
-	if (i18n_t === null) i18n_t = rawError
-	if (objDef === undefined)
-		throw new Error('objDef argument is missing')
-	if (typeof(objDef) != 'object')
-		throw new Error('objDef argument is not an object')
-	if (object === undefined)
-		throw new Error('object argument is missing')
-	if (typeof(object) != 'object')
-		throw new Error('object argument is not an object')
 
-	for (const [propName, propDef] of Object.entries(objDef)) {
-		const error = controlObjectProperty (objDef, propName, propValue, i18n_t)
-		if (error)
-			return error
-	}
-	return false // no error
-}
 
 const controlObjectProperty = (objDef, propName, propValue, i18n_t = null) => {
 	if (i18n_t === null) i18n_t = rawError
@@ -41,7 +24,7 @@ const controlObjectProperty = (objDef, propName, propValue, i18n_t = null) => {
 		return i18n_t('error.prop.is_not_defined', {property: propName})
 
 	if (propValue === null) {
-		if (prop.mandatory)
+		if (propDef.mandatory)
 			return i18n_t('error.prop.is_null', {property: propName})
 		else
 			return null
@@ -76,17 +59,29 @@ const controlObjectProperty = (objDef, propName, propValue, i18n_t = null) => {
 	}
 	
 	switch (propDef.type) {
+
 		case 'id':
 		case 'integer':
 			if (typeof(propValue) !== 'number' )
-				return i18n_t('error.prop.is_not_a_integer', {property: propName})
-			//if (isNaN(propValue))
-			//	return i18n_t('error.prop.is_not_an_integer', {property: propName})
+				return i18n_t('error.prop.is_not_an_integer', {property: propName})
 			if (propDef.minimum && propValue < propDef.minimum )
 				return i18n_t('error.prop.is_too_small', {property: propName, size: propDef.minimum})
 			if (propDef.maximum && propValue > propDef.maximum )
 				return i18n_t('error.prop.is_too_large', {property: propName, size: propDef.maximum})
 			return false // no error
+
+		case 'price':
+			if (typeof(propValue) !== 'number' )
+				return i18n_t('error.prop.is_not_an_integer', {property: propName})
+			if ( isNaN(propValue) )
+				return i18n_t('error.prop.is_not_an_integer', {property: propName})
+			if (propDef.minimum && propValue < propDef.minimum )
+				return i18n_t('error.prop.is_too_small', {property: propName, size: propDef.minimum})
+			if (propDef.maximum && propValue > propDef.maximum )
+				return i18n_t('error.prop.is_too_large', {property: propName, size: propDef.maximum})
+			return false // no error
+
+
 		case 'string':
 		case 'text':
 			if (typeof(propValue) !== 'string' )
@@ -98,6 +93,7 @@ const controlObjectProperty = (objDef, propName, propValue, i18n_t = null) => {
 			if (propDef.type !== 'text' && propValue.includes('\n'))
 				return i18n_t('error.prop.string_contains_line_feeds',  {property: propName, size: propDef.maximum})
 			return false // no error
+
 		case 'email':
 			if (typeof(propValue) !== 'string' )
 				return i18n_t('error.prop.is_not_a_string', {property: propName})
@@ -108,6 +104,7 @@ const controlObjectProperty = (objDef, propName, propValue, i18n_t = null) => {
 			if (value.match(/\S+@\S+\.\S+/) === null)
 				return i18n_t('error.prop.is_malformed_email', {property: 'email'})
 			return false // no error
+
 		case 'date':
 		case 'datetime':
 			if (typeof(propValue) !== 'object')
@@ -115,16 +112,131 @@ const controlObjectProperty = (objDef, propName, propValue, i18n_t = null) => {
 			if (propValue.constructor.name !== 'date')
 				return i18n_t('error.prop.is_not_a_date', {property: propName})
 			return false // no error
+
 		case 'boolean':
 			if (typeof(propValue) !== 'boolean')
 				return i18n_t('error.prop.is_not_a_boolean', {property: propName})
 			return false // no error
+
 		default:
 			throw new Error(`Property type [${propDef.type}] not supported`)
 	}
 }
 
+const controlObject = (objDef, object, controlId = true, i18n_t = null) => {
+	if (i18n_t === null) i18n_t = rawError
+	if (objDef === undefined)
+		throw new Error('objDef argument is missing')
+	if (typeof(objDef) != 'object')
+		throw new Error('objDef argument is not an object')
+	if (object === undefined)
+		throw new Error('object argument is missing')
+	if (typeof(object) != 'object')
+		throw new Error('object argument is not an object')
+
+	for (const [propName, propDef] of Object.entries(objDef)) {
+		if (propDef.type === 'id' && controlId === false)
+			continue
+		const error = controlObjectProperty (objDef, propName, object[propName], i18n_t)
+		if (error)
+			return error
+	}
+	return false // no error
+}
+
+const createObjectInstance = (objDef) => {
+	if (objDef === undefined)
+		throw new Error('objDef argument is missing')
+	if (typeof(objDef) != 'object')
+		throw new Error('objDef argument is not an object')
+	const object = {} 
+	for (const [propName, propDef] of Object.entries(objDef)) {
+		switch (propDef.type) {
+			case 'id':
+				object[propName] = null
+				break;
+			case 'integer':
+			case 'price':
+				if (object.defaultValue)
+					object[propName] = parseInt(object.defaultValue) 
+				else if (propDef.mandatory)
+					object[propName] = 0 
+				else
+					object[propName] = null 
+				break;
+			case 'string':
+			case 'text':
+			case 'email':
+				if (object.defaultValue)
+					object[propName] = object.defaultValue
+				else if (propDef.mandatory)
+					object[propName] = ""
+				else
+					object[propName] = null
+				break;
+			case 'date':
+			case 'datetime':
+				if (propDef.mandatory)
+					object[propName] = new Date()
+				else
+					object[propName] = null
+				break;
+			case 'boolean':
+				if (object.defaultValue)
+					object[propName] = object.defaultValue
+				else if (propDef.mandatory)
+					object[propName] = false 
+				else
+					object[propName] = null 
+				break;
+			default:
+				throw new Error(`Property type [${propDef.type}] not supported`)
+		}
+	}
+	return object
+}
+
+
+const diffObjects = (objDef, objectA, objectB, ignoreID = false) => {
+	if (objDef === undefined)
+		throw new Error('objDef argument is missing')
+	if (typeof(objDef) != 'object')
+		throw new Error('objDef argument is not an object')
+
+	if (objectA === undefined)
+		throw new Error('objectA argument is missing')
+	if (typeof(objectA) != 'object')
+		throw new Error('objectA argument is not an object')
+
+	if (objectB === undefined)
+		throw new Error('objectB argument is missing')
+	if (typeof(objectA) != 'object')
+		throw new Error('objectB argument is not an object')
+
+	const delta = {}
+	for (const [propName, propDef] of Object.entries(objDef)) {
+		if (propDef.type === 'id') {
+			if (ignoreID) 
+				continue
+			if (objectA.id === undefined)
+				throw new Error('Object A has no ID')
+			if (objectB.id === undefined)
+				throw new Error('Object B has no ID')
+			if (objectA.id !== objectB.id)
+				throw new Error('Objects ID are different')
+			delta[propName] = objectB[propName]
+			continue
+		}
+		if (objectA[propName] == objectB[propName])
+			continue
+		delta[propName] = objectB[propName]
+	}
+	return delta
+}
+
 export {
+	controlObjectProperty,
 	controlObject,
-	controlObjectProperty
+	diffObjects,
+	createObjectInstance
 }
