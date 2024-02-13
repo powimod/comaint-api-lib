@@ -83,9 +83,30 @@ const editOffer = async function (offer) {
 	}
 }
 
+const createOffer = async function (offer) {
+	if (typeof(offer) !== 'object')
+		throw new Error('Argument <create> is not an object')
+	const url = `${apiVersion}/offer/create`
+	try {
+		const result = await apiTool.request(url, 'POST', { offer }, null)
+		offer = result.offer
+		if (offer === undefined)
+			throw new Error('Offer not found is HTTP response')
+		return {ok: true, offer: offer}
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
 const offerApi = {
 	getOfferList,
 	getOfferDetails,
-	editOffer 
+	editOffer,
+	createOffer 
 }
+
 export default offerApi
