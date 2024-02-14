@@ -110,7 +110,7 @@ const editOffer = async function (offer) {
  */
 const createOffer = async function (offer) {
 	if (typeof(offer) !== 'object')
-		throw new Error('Argument <create> is not an object')
+		throw new Error('Argument <offer> is not an object')
 	const url = `${apiVersion}/offer/create`
 	try {
 		const result = await apiTool.request(url, 'POST', { offer }, null)
@@ -127,11 +127,38 @@ const createOffer = async function (offer) {
 	}
 }
 
+/**
+ * Delete an Offer object in database.
+ * @function
+ * @param { integer } offerID - the ID of the offer to delete
+ * @returns { { ok:boolean } } - ok is true is offer was successfully deleted.
+ * @returns { { ok:boolean, error:Object } } - if ok is false returns an error message.
+ */
+const deleteOffer = async function (offerId) {
+	if (typeof(offerId) !== 'number')
+		throw new Error('Argument <offerId> is not valid')
+	const url = `${apiVersion}/offer/${offerId}/delete`
+	try {
+		const result = await apiTool.request(url, 'POST', {
+			offerId: offerId,
+			recursive: false
+		}, null)
+		return { ok: true }
+	}
+	catch (error) {
+		return {
+			ok: false, 
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
 const offerApi = {
 	getOfferList,
 	getOfferDetails,
 	editOffer,
-	createOffer 
+	createOffer,
+	deleteOffer
 }
 
 export default offerApi
