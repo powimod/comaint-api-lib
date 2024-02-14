@@ -14,21 +14,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * @module offer-api
+ */
+
 'use script'
 import ApiToolsSingleton from './api-tools'
 const apiTool = ApiToolsSingleton.getInstance()
 const apiVersion = 'v1'
 
+/**
+ * Returns the Offer list
+ * @function
+ * @param { Array.<{ filedName:string, fieldValue:string }> } filters - Array of filters with field name and field value.
+ * @param { Array } params - not used yet
+ * @returns { { ok:boolean, offerList:Array.<Object> } | { ok:boolean, error:string } } - If ok is true, returns an array of Offer objects else returns an error message
+ */
 const getOfferList = async function (filters, params) {
 	const url = `${apiVersion}/offer/list`
 	if (! params)
 		params = {}
-	/* TODO cleanup
-	for (const filter of Object.keys(filters)) 
-		url.searchParams.append(filter, filters[filter])
-	if (params.resultsPerPage !== undefined)
-		url.searchParams.append('resultsPerPage', params.resultsPerPage)
-		*/
 	params.filters = filters
 	try {
 		const result = await apiTool.request(url, 'GET', null, params)
@@ -45,6 +50,13 @@ const getOfferList = async function (filters, params) {
 	}
 }
 
+/**
+ * Returns the Offer details with its properties and values
+ * @function
+ * @param { integer } idOffer - ID of the searched offer
+ * @param { Array } params - not used yet
+ * @returns { { ok:boolean, offerList:Object } | { ok:boolean, error:string } } - If ok is true, returns offerList else returns an error message
+ */
 const getOfferDetails = async function (idOffer, params) {
 	if (isNaN(idOffer))
 		throw new Error('Argument <idOffer> is not a number')
@@ -64,6 +76,12 @@ const getOfferDetails = async function (idOffer, params) {
 	}
 }
 
+/**
+ * Save an Edited Offer object in database.
+ * @function
+ * @param { Object } offer: the Offer object to save with its valued ID property.
+ * @returns { { ok:boolean, offer:Object } | { ok:boolean, error:string } } - if ok is true returns the updated Offer object else returns an error message.
+ */
 const editOffer = async function (offer) {
 	if (typeof(offer) !== 'object')
 		throw new Error('Argument <offer> is not an object')
@@ -83,6 +101,12 @@ const editOffer = async function (offer) {
 	}
 }
 
+/**
+ * Save a new Offer object in database.
+ * @function
+ * @param { Object } offer - the Offer Object to save with its ID value not set or null.
+ * @returns { { ok:boolean, offer:Object } | { ok:boolean, error:string } } - if ok is true returns the updated offer (with ID valued) else returns an error message.
+ */
 const createOffer = async function (offer) {
 	if (typeof(offer) !== 'object')
 		throw new Error('Argument <create> is not an object')
