@@ -77,6 +77,36 @@ const getOfferDetails = async function (idOffer, params) {
 }
 
 /**
+ * Returns an array with subscriptions and companies counters for an offer.
+ * @function
+ * @param { integer } idOffer - ID of the searched offer
+ * @param { Array } params - not used yet
+ * @returns { { ok:boolean, offerList:Array.{objectName:string, count:number}} | { ok:boolean, error:string } } - 
+ * 	If ok is true, returns an Array where each entry contains the name of the object and the associated counter.
+ * @returns { { ok:boolean, error:string } } -  
+ * 	if ok is false, returns an error message
+ */
+const getChildrenCountList = async function (idOffer, params) {
+	if (isNaN(idOffer))
+		throw new Error('Argument <idOffer> is not a number')
+	const url = `${apiVersion}/offer/${idOffer}/children-count`
+	try {
+		const result = await apiTool.request(url, 'GET', null, null)
+		const childrenCountList = result.childrenCountList 
+		if (childrenCountList === undefined)
+			throw new Error('ChildrenCountList not found is HTTP response')
+		return {ok: true, childrenCountList: childrenCountList}
+	}
+	catch (error) {
+		return {
+			ok: false,
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
+
+/**
  * Save an Edited Offer object in database.
  * @function
  * @param { Object } offer: the Offer object to save with its valued ID property.
@@ -156,9 +186,10 @@ const deleteOffer = async function (offerId) {
 const offerApi = {
 	getOfferList,
 	getOfferDetails,
+	getChildrenCountList,
 	editOffer,
 	createOffer,
-	deleteOffer
+	deleteOffer,
 }
 
 export default offerApi
