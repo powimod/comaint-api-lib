@@ -105,7 +105,8 @@ const editOffer = async function (offer) {
  * Save a new Offer object in database.
  * @function
  * @param { Object } offer - the Offer Object to save with its ID value not set or null.
- * @returns { { ok:boolean, offer:Object } | { ok:boolean, error:string } } - if ok is true returns the updated offer (with ID valued) else returns an error message.
+ * @returns { { ok:boolean, offer:Object } } - if ok is true returns the updated offer (with ID valued)
+ * @returns { { ok:boolean, error:Object } } - if ok is false returns an error message.
  */
 const createOffer = async function (offer) {
 	if (typeof(offer) !== 'object')
