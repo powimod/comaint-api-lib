@@ -33,7 +33,7 @@ class ApiTool {
 	#accessToken = null;
 	#refreshToken = null;
 	#accountId = null;
-	#account = null;
+	//TODO issue-9 #account = null;
 	#accountSerializeFunction = null;
 
 	/**
@@ -77,7 +77,7 @@ class ApiTool {
 		if (accountId !== null && isNaN(accountId) )
 			throw new Error('[accountSerializeFunction] did not return a valid account ID');
 		this.#accountId = accountId
-		this.#account = null
+		// TODO issue-9 : this.#account = null
 
 		if (refreshToken === undefined)
 			throw new Error('[accountSerializeFunction] did not return a refresh token');
@@ -90,6 +90,63 @@ class ApiTool {
 		if (accessToken !== null && typeof(accessToken) !== 'string')
 			throw new Error('[accountSerializeFunction] did not return a valid access token');
 		this.#accessToken = accessToken;
+	}
+
+	_interpretResponse(json)
+	{
+		let change = false
+		console.log("dOm response ", json)
+
+		/* TODO issue-9
+		let context = json.data['context']
+		if (context !== undefined) {
+			console.log("dOm new context detected", context)
+			if (context === null) {
+				// context is null when logout route is called
+				this.#accountId = null
+				this.accessToken = null
+				this.refreshToken = null
+			}
+			else {
+				this.#accountId = null
+			}
+			change = true
+		}
+		*/
+
+		const userId = json.data['userId']
+		if (userId !== undefined) {
+			console.log("dOm new user ID detected", userId)
+			if (userId === null) {
+				// context is null when logout route is called
+				this.#accountId = null
+				this.accessToken = null
+				this.refreshToken = null
+			}
+			else {
+				this.#accountId = userId
+			}
+			change = true
+		}
+
+		const accessToken = json.data['access-token']
+		if (accessToken !== undefined) {
+			console.log("dOm new access token detected", accessToken)
+			this.#accessToken = accessToken
+			change = true
+		}
+
+		const refreshToken = json.data['refresh-token']
+		if (refreshToken !== undefined) {
+			console.log("dOm new refresh token detected", refreshToken)
+			this.#refreshToken = refreshToken
+			change = true
+		}
+
+		if (change) {
+			console.log("dOm call serialize function to save data")
+			this.#accountSerializeFunction('save', this.#accountId, this.#refreshToken, this.#accessToken);
+		}
 	}
 
 	/**
@@ -108,15 +165,19 @@ class ApiTool {
 	 * @param {string} refreshToken - jeton de rafraîchissement ou null s'il n'est pas défini.
 	 *
 	 */
-	setAccountAndTokens(account, accessToken, refreshToken) {
-		if (account === undefined || accessToken === undefined || refreshToken === undefined)
+	/* TODO issue-9
+	setAccountAndTokens(accountId, accessToken, refreshToken) {
+		if (accountId === undefined || accessToken === undefined || refreshToken === undefined)
 			throw new Error('Missing parameters');
+		if (typeof(accountId) != 'number')
+			throw new Error('Invalid account ID')
 		this.#accountId = (account !== null) ? account.userId : null;
-		this.#account = account
+		//TODO issue-9 this.#account = account
 		this.#accessToken = accessToken;
 		this.#refreshToken = refreshToken;
 		this.#accountSerializeFunction('save', this.#accountId, this.#refreshToken, this.#accessToken);
 	}
+	*/
 
 	/**
 	 * Fonction appelée en interne pour appeler une route du backend.
@@ -197,15 +258,16 @@ class ApiTool {
 		if (json.ok === false && json.error === 'Expired token' ) {
 			console.log('Refreshing access token...')
 
-			let currentAccount = this.#account
+			// issue-9 let currentAccount = this.#account
 			let refreshToken = this.#refreshToken
 			if (refreshToken === null) 
 				throw new Error('No refresh token found to refresh access token')
 
+			// TODO issue-9 
 			// reset access and refresh tokens 
 			// (important since refresh tokens can be used only one time)
-			console.log("Reset access and refresh tokens in context")
-			this.setAccountAndTokens(currentAccount, null, null)
+			//console.log("Reset access and refresh tokens in context")
+			//this.setAccountAndTokens(currentAccount, null, null)
 
 			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/v1/auth/refresh`)
 			const refreshHttpHeaders = {
@@ -236,6 +298,8 @@ class ApiTool {
 				throw new Error(`Error while refreshing tokens : ${json.error}`)
 			}
 
+			// TODO issue-9 
+			/*
 			const accessToken = json.data['access-token']
 			if (accessToken === undefined)
 				throw new Error(`Can't find new access token`)
@@ -246,6 +310,8 @@ class ApiTool {
 
 			console.log("Save new access and refresh tokens in context")
 			this.setAccountAndTokens(currentAccount, accessToken, refreshToken) 
+			*/
+			this._interpretResponse(json)
 
 			console.log(`Retry calling API ${apiUrl}`);
 
@@ -267,6 +333,7 @@ class ApiTool {
 			throw new Error(json.error);
 		if (json.data === undefined)
 			throw new Error('data not found in JSON response');
+		this._interpretResponse(json)
 		return json.data;
 	}
 }
