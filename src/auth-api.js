@@ -194,9 +194,7 @@ const validateRegistration = async function(validationCode) {
 	const url = `${apiVersion}/auth/validateRegistration`;
 	try {
 		// TODO control validationCode value is not empty
-		const requestBody = {
-			validationCode: validationCode
-		};
+		const requestBody = { validationCode };
 		const result = await apiTools.request(url, 'POST',  requestBody, null, true);
 		return {ok: true};
 	}
