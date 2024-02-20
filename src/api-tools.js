@@ -14,6 +14,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * @module ApiTool
+ * Pour utiliser ApiTool, il faut d'abord appeler la fonction 'initialize' en lui passant une configuration
+ * qui contient l'URL du backend de l'API et une fonction de rappel qui sera appelée pour le stockage
+ * de l'ID de l'account et des jetons d'accès et de rafraîchissement (le front-end Comaint les stocke 
+ * dans localStorage).
+ */
+
+
+/**
+ * Classe permettant d'exécuter des requêtes HTTP sur le serveur backend (voir méthode 'request')
+ * @class
+ * @private
+ */
 class ApiTool {
 	#apiBaseUrl = null; 
 	#accessToken = null;
@@ -22,7 +36,40 @@ class ApiTool {
 	#account = null;
 	#accountSerializeFunction = null;
 
-	_load() {
+	/**
+	 * Fonction à appeler pour pouvoir utiliser ce module.
+	 *
+	 * Si elle est appelée plusieurs fois (ce que fait React en mode développement), seul le premier appel
+	 * est pris en compte et les autres sont ignorés sans générer d'erreur.
+	 *
+	 * Quand la fonction 'initialize' est appelée, la fonction de rappel est aussitôt rappelée avec le mode 'load'
+	 * pour charger le contexte initial. Celle-ci doit alors renvoyer l'identifiant du compte et les jetons d'accès
+	 * et de renouvellement qui avait été stockés précédemment ou nul s'ils n'ont pas été stockés.
+	 *
+	 * @param {Object} config : object contenant l'URL du backend API Comaint dans une propriété 'backend.url'.
+	 * @param {function} accountSerializeFunction : fonction de rappel pour le stockage de l'ID du compte et des jetons.
+	 */
+	initialize (config, accountSerializeFunction) {
+		if ( this.#apiBaseUrl !== null)
+			return; // FIXME do not generate exception since it is called twice with React
+
+		if (config === undefined)
+			throw new Error('[config] argument is missing');
+		if (config.backend === undefined)
+			throw new Error('Section [backend] is not defined in config"');
+		if (config.backend.url === undefined)
+			throw new Error('Parameter [url] is not defined [backend] section');
+		this.#apiBaseUrl = config.backend.url
+		console.log('API backend url', this.#apiBaseUrl )
+		if (config.backend.url === undefined)
+			throw new Error('Parameter [url] is not defined [backend] section');
+
+		if (accountSerializeFunction === undefined)
+			throw new Error('[accountSerializeFunction] argument is not defined');
+		if (typeof(accountSerializeFunction) !== 'function')
+			throw new Error('[accountSerializeFunction] argument is not a function');
+		this.#accountSerializeFunction  = accountSerializeFunction;
+
 		const [accountId, refreshToken, accessToken] = this.#accountSerializeFunction('load');
 
 		if (accountId === undefined)
@@ -45,33 +92,25 @@ class ApiTool {
 		this.#accessToken = accessToken;
 	}
 
-	initialize (config, accountSerializeFunction) {
-		if ( this.#apiBaseUrl !== null)
-			return; // FIXME do not generate exception since it is called twice with React
-
-		if (accountSerializeFunction === undefined)
-			throw new Error('[accountSerializeFunction] argument is not defined');
-		if (typeof(accountSerializeFunction) !== 'function')
-			throw new Error('[accountSerializeFunction] argument is not a function');
-		this.#accountSerializeFunction  = accountSerializeFunction;
-		this._load();
-
-		if (config === undefined)
-			throw new Error('[config] argument is missing');
-		if (config.backend === undefined)
-			throw new Error('Section [backend] is not defined in config"');
-		if (config.backend.url === undefined)
-			throw new Error('Parameter [url] is not defined [backend] section');
-		this.#apiBaseUrl = config.backend.url
-		console.log('API backend url', this.#apiBaseUrl )
-		if (config.backend.url === undefined)
-			throw new Error('Parameter [url] is not defined [backend] section');
-	}
-
+	/**
+	 * Fonction appelée pour changer l'identifiant de l'account et les jetons d'accès et de rafraîchissement.
+	 *
+	 * La fonction de sérialisation associée à l'API (voir fonction 'initialize') est alors appelée avec l'argument 
+	 * 'mode' défini à 'save'.
+	 *
+	 * Cette fontion est appelée en interne lorsque la fonction 'request' détecte une erreur de jeton d'accès périmié
+	 * lors de l'exécution d'une requête vers la backend.
+	 * Elle est aussi appelée par le module 'auth-api' dans les fonctions 'login', 'logout' 'register'.
+	 *
+	 * @param {Object} account - objet contenant les propriétés du compte comme son ID. Il peut être nul.
+	 * 	S'il n'est pas nul, sa propriété 'userId' est récupérée comme identifiant du compte.
+	 * @param {string} accessToken - jeton d'accès ou null s'il n'est pas défini.
+	 * @param {string} refreshToken - jeton de rafraîchissement ou null s'il n'est pas défini.
+	 *
+	 */
 	setAccountAndTokens(account, accessToken, refreshToken) {
 		if (account === undefined || accessToken === undefined || refreshToken === undefined)
 			throw new Error('Missing parameters');
-		
 		this.#accountId = (account !== null) ? account.userId : null;
 		this.#account = account
 		this.#accessToken = accessToken;
@@ -79,6 +118,31 @@ class ApiTool {
 		this.#accountSerializeFunction('save', this.#accountId, this.#refreshToken, this.#accessToken);
 	}
 
+	/**
+	 * Fonction appelée en interne pour appeler une route du backend.
+	 * La route analyse le résultat reçu qui contient toujours un boolean 'ok' qui indique si la requête a été exécutée avec succès.
+	 * Si 'ok' est false alors le message d'erreur est récupéré dans la propriété 'error' et une exception est levée avec ce message
+	 * d'erreur.
+	 * Si 'ok' est vrai, alors les données sont récupérées avec la propriété 'data' qui est toujours renvoyée par le backend quand
+	 * une requête aboutit (si la propriété 'data' n'était pas trouvée alors une exception serait levée)
+	 * La fonction renvoie alors l'objet récupéré dans la partie 'data'.
+	 * Si le backend renvoie une erreur de jeton d'accès périmé alors la fonction tente de le renouveler en envoyant son jeton
+	 * de rafraîchissement avec la route 'auth/refresh'.
+	 * La fonction appelle alors 'setAccountAndTokens' deux fois : une première fois pour les réinitialiser avant de tenter 
+	 * l'appel de la route 'auth/refresh' puis une seconde fois pour les redéfinir si le rafraîchissement s'est bien produit.
+	 * Elle fait ensuite une seconde tentative d'envoi de la requête initiale et renvoie son résultat ou une erreur.
+	 * @function
+	 * @param {string} route - URL relative de la route à appeler (l'URL complète est construite en la préfixant avec l'URL du backend
+	 * 	obtenue à l'initialisation de l'API (voir fonction 'initialize').
+	 * @param {string} httpMethod - méthode HTTP (GET, POST, ...)
+	 * @param {Object} requestBody - objet passé dans le corps de la requête au format JSON.
+	 * @param {params} params -  paramètres HTTP à passer avec la requête (les entêtes Accept et Content-Type seront automatiquement
+	 * 	ajoutés et positionnés au format JSON.
+	 * @param {boolean} sendAccessToken - non utilisé (le jeton d'accès sera automatiquement transmis s'il est présent dans contexte.
+	 * @param {boolean} sendRefreshToken - demande d'envoyer le jeton d'accès (utilisé pour certaines routes comme Logout).
+	 * @returns {Object} - resultat de la requête.
+	 *
+	 */
 	async request(route, httpMethod, requestBody = null, params = null, sendAccessToken = true, sendRefreshToken = false){
 		if ( this.#apiBaseUrl === null)
 			throw new Error('Apitools is not initialized');
@@ -207,13 +271,27 @@ class ApiTool {
 	}
 }
 
+/**
+ * Classe singleton permettant d'accéder à l'instance de la classe ApiTool 
+ * @class
+ * @public
+ */
 class ApiToolsSingleton {
 	static instance = null;
 
+	/**
+	 * constructeur interdit car la classe n'est pas instanciable
+	 * @constructor
+	 * @private
+	 */
 	constructor() {
 		throw new Error('Can not instanciate singleton object!');
 	}
 
+	/**
+	 * méthode statique permettant l'accès à l'instance de la classe ApiTool
+	 * @returns {Object} - instance ApiTool
+	 */
 	static getInstance() {
 		if (! ApiToolsSingleton.instance)
 			ApiToolsSingleton.instance = new ApiTool();
