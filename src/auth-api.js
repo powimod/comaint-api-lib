@@ -143,7 +143,6 @@ const validateRegistration = async function(validationCode) {
 			validationCode: validationCode
 		};
 		const result = await apiTools.request(url, 'POST',  requestBody, null, true);
-		console.log(result)
 		return {ok: true};
 	}
 	catch (error) {
