@@ -27,6 +27,8 @@ const apiVersion= 'v1';
  * Call the backend API 'auth/login' route to identify user.
  * It calls apiTools.setAccountAndTokens to change account ID and token.
  *
+ * TODO issue-9 update documentation
+ *
  * @function
  * @param {string} email - User email address.
  * @param {string} password - User password.
@@ -52,6 +54,7 @@ const login = async function(email, password) {
 		if (userId === undefined)
 			throw new Error('userId not found in HTTP response');
 
+		/* TODO issue-9
 		const firstname = result['firstname'];;
 		if (firstname === undefined)
 			throw new Error('firstname not found in HTTP response');
@@ -59,6 +62,7 @@ const login = async function(email, password) {
 		const lastname = result['lastname'];;
 		if (lastname === undefined)
 			throw new Error('lastname not found in HTTP response');
+			*/
 		
 
 		const refreshToken = result['refresh-token'];;
@@ -69,11 +73,11 @@ const login = async function(email, password) {
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
 
-		// FIXME should return company ID
-		const account = { userId, email, firstname, lastname}
-		apiTools.setAccountAndTokens(account, accessToken, refreshToken)
+		// TODO issue-9
+		// const account = { userId, email, firstname, lastname}
+		// apiTools.setAccountAndTokens(account, accessToken, refreshToken)
 
-		return { ok: true, ...account };
+		return { ok: true, userId };
 	}
 	catch (error) {
 		return {
@@ -101,7 +105,8 @@ const logout = async function() {
 			null,  // params
 			false, // do not send accessToken
 			true); // send refresh token in request body
-		apiTools.setAccountAndTokens(null, null, null)
+		// TODO issue-9
+		//apiTools.setAccountAndTokens(null, null, null)
 		return {ok: true};
 	}
 	catch (error) {
@@ -156,8 +161,9 @@ const register = async function(email, password, firstname, lastname ) {
 		const accessToken = result['access-token'];;
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
-		const account = { userId, email,firstname,lastname}
-		apiTools.setAccountAndTokens(account, accessToken, refreshToken)
+		// TODO issue-9
+		//const account = { userId, email,firstname,lastname}
+		//apiTools.setAccountAndTokens(account, accessToken, refreshToken)
 
 		return {
 			ok: true, 
