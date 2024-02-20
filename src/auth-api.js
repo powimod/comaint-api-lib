@@ -30,7 +30,8 @@ const apiVersion= 'v1';
  * @function
  * @param {string} email - User email address.
  * @param {string} password - User password.
- * @returns {ok: boolean, account: Object} - if login is successful, returns an object with ok=true and an account property with account informations.
+ * @returns {ok: boolean, userId: number} - if login is successful, returns an object with ok=true and the account ID 
+ * 	(which can be null when no user is connected)
  * @returns {ok: boolean, error: string} - Otherwise returns an object with ok=false and an error message.
  */
 const login = async function(email, password) {
@@ -52,15 +53,6 @@ const login = async function(email, password) {
 		if (userId === undefined)
 			throw new Error('userId not found in HTTP response');
 
-		const firstname = result['firstname'];;
-		if (firstname === undefined)
-			throw new Error('firstname not found in HTTP response');
-		
-		const lastname = result['lastname'];;
-		if (lastname === undefined)
-			throw new Error('lastname not found in HTTP response');
-		
-
 		const refreshToken = result['refresh-token'];;
 		if (refreshToken === undefined)
 			throw new Error('refresh-token not found in HTTP response');
@@ -69,11 +61,7 @@ const login = async function(email, password) {
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
 
-		// FIXME should return company ID
-		const account = { userId, email, firstname, lastname}
-		apiTools.setAccountAndTokens(account, accessToken, refreshToken)
-
-		return { ok: true, ...account };
+		return { ok: true, userId };
 	}
 	catch (error) {
 		return {
@@ -101,7 +89,6 @@ const logout = async function() {
 			null,  // params
 			false, // do not send accessToken
 			true); // send refresh token in request body
-		apiTools.setAccountAndTokens(null, null, null)
 		return {ok: true};
 	}
 	catch (error) {
@@ -156,9 +143,6 @@ const register = async function(email, password, firstname, lastname ) {
 		const accessToken = result['access-token'];;
 		if (accessToken === undefined)
 			throw new Error('access-token not found in HTTP response');
-		const account = { userId, email,firstname,lastname}
-		apiTools.setAccountAndTokens(account, accessToken, refreshToken)
-
 		return {
 			ok: true, 
 			userId: userId
@@ -188,9 +172,7 @@ const validateRegistration = async function(validationCode) {
 	const url = `${apiVersion}/auth/validateRegistration`;
 	try {
 		// TODO control validationCode value is not empty
-		const requestBody = {
-			validationCode: validationCode
-		};
+		const requestBody = { validationCode };
 		const result = await apiTools.request(url, 'POST',  requestBody, null, true);
 		return {ok: true};
 	}

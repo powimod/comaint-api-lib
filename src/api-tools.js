@@ -33,7 +33,6 @@ class ApiTool {
 	#accessToken = null;
 	#refreshToken = null;
 	#accountId = null;
-	#account = null;
 	#accountSerializeFunction = null;
 
 	/**
@@ -77,7 +76,6 @@ class ApiTool {
 		if (accountId !== null && isNaN(accountId) )
 			throw new Error('[accountSerializeFunction] did not return a valid account ID');
 		this.#accountId = accountId
-		this.#account = null
 
 		if (refreshToken === undefined)
 			throw new Error('[accountSerializeFunction] did not return a refresh token');
@@ -92,30 +90,41 @@ class ApiTool {
 		this.#accessToken = accessToken;
 	}
 
-	/**
-	 * Fonction appelée pour changer l'identifiant de l'account et les jetons d'accès et de rafraîchissement.
-	 *
-	 * La fonction de sérialisation associée à l'API (voir fonction 'initialize') est alors appelée avec l'argument 
-	 * 'mode' défini à 'save'.
-	 *
-	 * Cette fontion est appelée en interne lorsque la fonction 'request' détecte une erreur de jeton d'accès périmié
-	 * lors de l'exécution d'une requête vers la backend.
-	 * Elle est aussi appelée par le module 'auth-api' dans les fonctions 'login', 'logout' 'register'.
-	 *
-	 * @param {Object} account - objet contenant les propriétés du compte comme son ID. Il peut être nul.
-	 * 	S'il n'est pas nul, sa propriété 'userId' est récupérée comme identifiant du compte.
-	 * @param {string} accessToken - jeton d'accès ou null s'il n'est pas défini.
-	 * @param {string} refreshToken - jeton de rafraîchissement ou null s'il n'est pas défini.
-	 *
-	 */
-	setAccountAndTokens(account, accessToken, refreshToken) {
-		if (account === undefined || accessToken === undefined || refreshToken === undefined)
-			throw new Error('Missing parameters');
-		this.#accountId = (account !== null) ? account.userId : null;
-		this.#account = account
-		this.#accessToken = accessToken;
-		this.#refreshToken = refreshToken;
-		this.#accountSerializeFunction('save', this.#accountId, this.#refreshToken, this.#accessToken);
+	_interpretResponse(json)
+	{
+		let change = false
+
+		const userId = json.data['userId']
+		if (userId !== undefined) {
+			console.log("dOm new user ID detected", userId)
+			if (userId === null) {
+				// context is null when logout route is called
+				this.#accountId = null
+				this.accessToken = null
+				this.refreshToken = null
+			}
+			else {
+				this.#accountId = userId
+			}
+			change = true
+		}
+
+		const accessToken = json.data['access-token']
+		if (accessToken !== undefined) {
+			console.log("dOm new access token detected", accessToken)
+			this.#accessToken = accessToken
+			change = true
+		}
+
+		const refreshToken = json.data['refresh-token']
+		if (refreshToken !== undefined) {
+			console.log("dOm new refresh token detected", refreshToken)
+			this.#refreshToken = refreshToken
+			change = true
+		}
+
+		if (change) 
+			this.#accountSerializeFunction('save', this.#accountId, this.#refreshToken, this.#accessToken);
 	}
 
 	/**
@@ -128,9 +137,9 @@ class ApiTool {
 	 * La fonction renvoie alors l'objet récupéré dans la partie 'data'.
 	 * Si le backend renvoie une erreur de jeton d'accès périmé alors la fonction tente de le renouveler en envoyant son jeton
 	 * de rafraîchissement avec la route 'auth/refresh'.
-	 * La fonction appelle alors 'setAccountAndTokens' deux fois : une première fois pour les réinitialiser avant de tenter 
-	 * l'appel de la route 'auth/refresh' puis une seconde fois pour les redéfinir si le rafraîchissement s'est bien produit.
-	 * Elle fait ensuite une seconde tentative d'envoi de la requête initiale et renvoie son résultat ou une erreur.
+	 * Le retour d'une requête est analysé pour détecter la présence de l'idenfiant du compte (userId) ou de jetons de
+	 * rafraîchissement ou d'accès : dans ce cas, la fonction de sérialisation est appelée en mode 'save'⋅
+	 *
 	 * @function
 	 * @param {string} route - URL relative de la route à appeler (l'URL complète est construite en la préfixant avec l'URL du backend
 	 * 	obtenue à l'initialisation de l'API (voir fonction 'initialize').
@@ -197,15 +206,9 @@ class ApiTool {
 		if (json.ok === false && json.error === 'Expired token' ) {
 			console.log('Refreshing access token...')
 
-			let currentAccount = this.#account
 			let refreshToken = this.#refreshToken
 			if (refreshToken === null) 
 				throw new Error('No refresh token found to refresh access token')
-
-			// reset access and refresh tokens 
-			// (important since refresh tokens can be used only one time)
-			console.log("Reset access and refresh tokens in context")
-			this.setAccountAndTokens(currentAccount, null, null)
 
 			const refreshApiUrl = new URL(`${this.#apiBaseUrl}/v1/auth/refresh`)
 			const refreshHttpHeaders = {
@@ -236,16 +239,7 @@ class ApiTool {
 				throw new Error(`Error while refreshing tokens : ${json.error}`)
 			}
 
-			const accessToken = json.data['access-token']
-			if (accessToken === undefined)
-				throw new Error(`Can't find new access token`)
-
-			refreshToken = json.data['refresh-token']
-			if (refreshToken === undefined)
-				throw new Error(`Can't find new refresh token`)
-
-			console.log("Save new access and refresh tokens in context")
-			this.setAccountAndTokens(currentAccount, accessToken, refreshToken) 
+			this._interpretResponse(json)
 
 			console.log(`Retry calling API ${apiUrl}`);
 
@@ -267,6 +261,7 @@ class ApiTool {
 			throw new Error(json.error);
 		if (json.data === undefined)
 			throw new Error('data not found in JSON response');
+		this._interpretResponse(json)
 		return json.data;
 	}
 }
