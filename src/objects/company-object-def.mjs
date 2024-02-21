@@ -63,9 +63,9 @@ const companyObjectDef = {
 	}, 
 	"managerId" : {
 		"type": "link",
-		"target" : "Company",
+		"target" : "User",
 		"field" : "id_manager",
-		"table" : "companies"
+		"table" : "users"
 	},
 }
 
