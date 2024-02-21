@@ -1,7 +1,7 @@
 /* Comaint API libary project (Javascript libary to easily access Comain API)
  * Copyright (C) 2023-2024 Dominique Parisot
  *
- * subscription-api.js
+ * catalog-api.js
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the 
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or
@@ -19,8 +19,8 @@ import ApiToolsSingleton from './api-tools'
 const apiTool = ApiToolsSingleton.getInstance()
 const apiVersion = 'v1'
 
-const getSubscriptionList = async function (filters, params) {
-	const url = `${apiVersion}/subscription/list`
+const getCatalogList = async function (filters, params) {
+	const url = `${apiVersion}/catalog/list`
 	if (! params)
 		params = {}
 	/* TODO cleanup
@@ -32,10 +32,10 @@ const getSubscriptionList = async function (filters, params) {
 	params.filters = filters
 	try {
 		const result = await apiTool.request(url, 'GET', null, params)
-		const subscriptionList = result.subscriptionList
-		if (subscriptionList === undefined)
-			throw new Error('Subscription list not found is HTTP response')
-		return {ok: true, subscriptionList: subscriptionList}
+		const catalogList = result.catalogList
+		if (catalogList === undefined)
+			throw new Error('Catalog list not found is HTTP response')
+		return {ok: true, catalogList: catalogList}
 	}
 	catch (error) {
 		return {
@@ -45,16 +45,16 @@ const getSubscriptionList = async function (filters, params) {
 	}
 }
 
-const getSubscriptionDetails = async function (idSubscription, params) {
-	if (isNaN(idSubscription))
-		throw new Error('Argument <idSubscription> is not a number')
-	const url = `${apiVersion}/subscription/${idSubscription}`
+const getCatalogDetails = async function (idCatalog, params) {
+	if (isNaN(idCatalog))
+		throw new Error('Argument <idCatalog> is not a number')
+	const url = `${apiVersion}/catalog/${idCatalog}`
 	try {
 		const result = await apiTool.request(url, 'GET', null, null)
-		const subscription = result.subscription
-		if (subscription === undefined)
-			throw new Error('Subscription not found is HTTP response')
-		return {ok: true, subscription: subscription}
+		const catalog = result.catalog
+		if (catalog === undefined)
+			throw new Error('Catalog not found is HTTP response')
+		return {ok: true, catalog: catalog}
 	}
 	catch (error) {
 		return {
@@ -64,16 +64,16 @@ const getSubscriptionDetails = async function (idSubscription, params) {
 	}
 }
 
-const editSubscription = async function (subscription) {
-	if (typeof(subscription) !== 'object')
-		throw new Error('Argument <subscription> is not an object')
-	const url = `${apiVersion}/subscription/edit`
+const editCatalog = async function (catalog) {
+	if (typeof(catalog) !== 'object')
+		throw new Error('Argument <catalog> is not an object')
+	const url = `${apiVersion}/catalog/edit`
 	try {
-		const result = await apiTool.request(url, 'POST', { subscription }, null)
-		subscription = result.subscription
-		if (subscription === undefined)
-			throw new Error('Subscription not found is HTTP response')
-		return {ok: true, subscription: subscription}
+		const result = await apiTool.request(url, 'POST', { catalog }, null)
+		catalog = result.catalog
+		if (catalog === undefined)
+			throw new Error('Catalog not found is HTTP response')
+		return {ok: true, catalog: catalog}
 	}
 	catch (error) {
 		return {
@@ -83,9 +83,9 @@ const editSubscription = async function (subscription) {
 	}
 }
 
-const subscriptionApi = {
-	getSubscriptionList,
-	getSubscriptionDetails,
-	editSubscription 
+const catalogApi = {
+	getCatalogList,
+	getCatalogDetails,
+	editCatalog 
 }
-export default subscriptionApi
+export default catalogApi

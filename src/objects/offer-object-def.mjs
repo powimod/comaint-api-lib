@@ -15,59 +15,65 @@
  */
 
 'use strict'
-const offerObjectDef = { 
+const offerObjectDef = {
 	"id" : {
 		"type": "id",
 		"mandatory": "true",
-	}, 
+	},
 	"title" : {
 		"type": "string",
 		"minimum": "1",
 		"maximum": "64",
 		"mandatory": "true",
-	}, 
+	},
 	"description" : {
 		"type": "text",
+		"minimum": "1",
 		"maximum": "256",
 		"mandatory": "true",
-	}, 
+	},
 	"active" : {
 		"type": "boolean",
 		"default": "true",
 		"mandatory": "true",
-	}, 
+	},
 	"duration" : {
 		"type": "integer",
 		"default": "0",
 		"mandatory": "true",
-	}, 
+	},
 	"price" : {
 		"type": "price",
 		"default": "0",
 		"mandatory": "true",
-	}, 
+	},
 	"userLimit" : {
 		"type": "integer",
+		"field": "user_limit",
 		"default": "0",
 		"mandatory": "true",
-	}, 
+	},
 	"equipmentLimit" : {
 		"type": "integer",
+		"field": "equipment_limit",
 		"default": "0",
 		"mandatory": "true",
-	}, 
+	},
 	"articleLimit" : {
 		"type": "integer",
+		"field": "article_limit",
 		"default": "0",
 		"mandatory": "true",
-	}, 
+	},
 	"interventionLimit" : {
 		"type": "integer",
+		"field": "intervention_limit",
 		"default": "0",
 		"mandatory": "true",
-	}, 
+	},
 	"storageLimit" : {
 		"type": "integer",
+		"field": "storage_limit",
 		"default": "0",
 		"mandatory": "true",
 	},

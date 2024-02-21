@@ -14,57 +14,78 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-'use script';
-const assert = require('assert');
-const ApiToolSingleton = require('./api-tools.js');
-const apiTool = ApiToolSingleton.getInstance();
-const ModelSingleton = require('./model.js');
-const model  = ModelSingleton.getInstance();
+'use script'
+import ApiToolsSingleton from './api-tools'
+const apiTool = ApiToolsSingleton.getInstance()
+const apiVersion = 'v1'
 
-exports.getTokenList = async function (filters, params) {
-	assert(filters !== undefined);
-	assert(params !== undefined);
-	const url = 'token/list';
+const getTokenList = async function (filters, params) {
+	const url = `${apiVersion}/token/list`
+	if (! params)
+		params = {}
 	/* TODO cleanup
 	for (const filter of Object.keys(filters)) 
-		url.searchParams.append(filter, filters[filter]);
+		url.searchParams.append(filter, filters[filter])
 	if (params.resultsPerPage !== undefined)
-		url.searchParams.append('resultsPerPage', params.resultsPerPage);
+		url.searchParams.append('resultsPerPage', params.resultsPerPage)
 		*/
-	params.filters = filters;
+	params.filters = filters
 	try {
-		const result = await apiTool.request(url, 'GET', null, params);
-		const tokenList = result.tokenList;
+		const result = await apiTool.request(url, 'GET', null, params)
+		const tokenList = result.tokenList
 		if (tokenList === undefined)
-			throw new Error('Token list not found is HTTP response');
-		return {ok: true, tokenList: tokenList};
+			throw new Error('Token list not found is HTTP response')
+		return {ok: true, tokenList: tokenList}
 	}
 	catch (error) {
 		return {
 			ok: false, 
 			error: (error.message !== undefined) ? error.message : error
-		};
+		}
 	}
 }
 
-exports.getTokenDetails = async function (idToken, params) {
-	assert(idToken !== undefined);
-	assert(params !== undefined);
+const getTokenDetails = async function (idToken, params) {
 	if (isNaN(idToken))
-		throw new Error('Argument <idToken> is not a number');
-	const url = `token/${idToken}`;
+		throw new Error('Argument <idToken> is not a number')
+	const url = `${apiVersion}/token/${idToken}`
 	try {
-		const result = await apiTool.request(url, 'GET', null, null);
-		const token = result.token;
+		const result = await apiTool.request(url, 'GET', null, null)
+		const token = result.token
 		if (token === undefined)
-			throw new Error('Token not found is HTTP response');
-		return {ok: true, token: token};
+			throw new Error('Token not found is HTTP response')
+		return {ok: true, token: token}
+	}
+	catch (error) {
+		return {
+			ok: false,
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
+const editToken = async function (token) {
+	if (typeof(token) !== 'object')
+		throw new Error('Argument <token> is not an object')
+	const url = `${apiVersion}/token/edit`
+	try {
+		const result = await apiTool.request(url, 'POST', { token }, null)
+		token = result.token
+		if (token === undefined)
+			throw new Error('Token not found is HTTP response')
+		return {ok: true, token: token}
 	}
 	catch (error) {
 		return {
 			ok: false, 
 			error: (error.message !== undefined) ? error.message : error
-		};
+		}
 	}
 }
 
+const tokenApi = {
+	getTokenList,
+	getTokenDetails,
+	editToken 
+}
+export default tokenApi

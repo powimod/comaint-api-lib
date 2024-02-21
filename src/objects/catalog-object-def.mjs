@@ -1,7 +1,7 @@
 /* Comaint Single Page Application frontend (Single page application frontend of Comaint project)
  * Copyright (C) 2023-2024 Dominique Parisot
  *
- * unit-object-def.mjs
+ * catalog-object-def.mjs
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the 
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or
@@ -15,50 +15,31 @@
  */
 
 'use strict'
-const unitObjectDef = {
+const catalogObjectDef = {
 	"id" : {
 		"type": "id",
 		"mandatory": "true",
 	},
-	"name" : {
+	"reference" : {
 		"type": "string",
-		"minimum": "2",
 		"maximum": "32",
-		"mandatory": "true",
-	},
-	"description" : {
-		"type": "string",
 		"mandatory": "false",
 	},
-	"address" : {
-		"type": "text",
-		"maximum": "128",
-		"default": "",
-		"mandatory": "true",
-	},
-	"city" : {
-		"type": "text",
-		"maximum": "64",
-		"default": "",
-		"mandatory": "true",
-	},
-	"zipCode" : {
-		"type": "text",
-		"field": "zip_code",
-		"maximum": "16",
-		"default": "",
-		"mandatory": "true",
-	},
-	"country" : {
-		"type": "text",
-		"maximum": "32",
-		"default": "",
-		"mandatory": "true",
-	},
-	"planUid" : {
-		"type": "image",
-		"field": "plan_uid",
-		"mandatory": "true",
+	"price" : {
+		"type": "price",
+		"mandatory": "false",
+	}, 
+	"supplierId" : {
+		"type": "link",
+		"target" : "Supplier",
+		"field" : "id_supplier",
+		"table" : "suppliers"
+	}, 
+	"articleId" : {
+		"type": "link",
+		"target" : "Article",
+		"field" : "id_article",
+		"table" : "articles"
 	}, 
 	"companyId" : {
 		"type": "link",
@@ -68,4 +49,4 @@ const unitObjectDef = {
 	},
 }
 
-export default unitObjectDef
+export default catalogObjectDef

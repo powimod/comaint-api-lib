@@ -15,28 +15,42 @@
  */
 
 'use strict'
-const subscriptionObjectDef = { 
+const subscriptionObjectDef = {
 	"id" : {
 		"type": "id",
 		"mandatory": "true",
-	}, 
+	},
 	"startDate" : {
 		"type": "date",
+		"field": "start_date",
 		"mandatory": "true",
-	}, 
+	},
 	"endDate" : {
 		"type": "date",
+		"field": "end_date",
 		"mandatory": "true",
-	}, 
+	},
 	"status" : {
 		"type": "integer",
 		"minimum": "1",
 		"maximum": "10",
 		"mandatory": "true",
-	}, 
+	},
 	"price" : {
 		"type": "price",
 		"mandatory": "true",
+	}, 
+	"offerId" : {
+		"type": "link",
+		"target" : "Offer",
+		"field" : "id_offer",
+		"table" : "offers"
+	}, 
+	"companyId" : {
+		"type": "link",
+		"target" : "Company",
+		"field" : "id_company",
+		"table" : "companies"
 	},
 }
 

@@ -1,7 +1,7 @@
 /* Comaint Single Page Application frontend (Single page application frontend of Comaint project)
  * Copyright (C) 2023-2024 Dominique Parisot
  *
- * unit-object-def.mjs
+ * order-line-object-def.mjs
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the 
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or
@@ -15,50 +15,42 @@
  */
 
 'use strict'
-const unitObjectDef = {
+const orderLineObjectDef = {
 	"id" : {
 		"type": "id",
 		"mandatory": "true",
 	},
-	"name" : {
-		"type": "string",
-		"minimum": "2",
-		"maximum": "32",
-		"mandatory": "true",
-	},
-	"description" : {
-		"type": "string",
+	"price" : {
+		"type": "price",
 		"mandatory": "false",
 	},
-	"address" : {
-		"type": "text",
-		"maximum": "128",
-		"default": "",
+	"orderQuantity" : {
+		"type": "integer",
+		"field": "order_quantity",
+		"minimum": "1",
+		"maximum": "127",
+		"default": "1",
 		"mandatory": "true",
 	},
-	"city" : {
-		"type": "text",
-		"maximum": "64",
-		"default": "",
+	"receivedQuantity" : {
+		"type": "integer",
+		"field": "received_quantity",
+		"minimum": "0",
+		"maximum": "127",
+		"default": "0",
 		"mandatory": "true",
-	},
-	"zipCode" : {
-		"type": "text",
-		"field": "zip_code",
-		"maximum": "16",
-		"default": "",
-		"mandatory": "true",
-	},
-	"country" : {
-		"type": "text",
-		"maximum": "32",
-		"default": "",
-		"mandatory": "true",
-	},
-	"planUid" : {
-		"type": "image",
-		"field": "plan_uid",
-		"mandatory": "true",
+	}, 
+	"orderId" : {
+		"type": "link",
+		"target" : "Order",
+		"field" : "id_order",
+		"table" : "orders"
+	}, 
+	"articleId" : {
+		"type": "link",
+		"target" : "Article",
+		"field" : "id_article",
+		"table" : "articles"
 	}, 
 	"companyId" : {
 		"type": "link",
@@ -68,4 +60,4 @@ const unitObjectDef = {
 	},
 }
 
-export default unitObjectDef
+export default orderLineObjectDef
