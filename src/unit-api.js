@@ -14,57 +14,78 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-'use script';
-const assert = require('assert');
-const ApiToolSingleton = require('./api-tools.js');
-const apiTool = ApiToolSingleton.getInstance();
-const ModelSingleton = require('./model.js');
-const model  = ModelSingleton.getInstance();
+'use script'
+import ApiToolsSingleton from './api-tools'
+const apiTool = ApiToolsSingleton.getInstance()
+const apiVersion = 'v1'
 
-exports.getUnitList = async function (filters, params) {
-	assert(filters !== undefined);
-	assert(params !== undefined);
-	const url = 'unit/list';
+const getUnitList = async function (filters, params) {
+	const url = `${apiVersion}/unit/list`
+	if (! params)
+		params = {}
 	/* TODO cleanup
 	for (const filter of Object.keys(filters)) 
-		url.searchParams.append(filter, filters[filter]);
+		url.searchParams.append(filter, filters[filter])
 	if (params.resultsPerPage !== undefined)
-		url.searchParams.append('resultsPerPage', params.resultsPerPage);
+		url.searchParams.append('resultsPerPage', params.resultsPerPage)
 		*/
-	params.filters = filters;
+	params.filters = filters
 	try {
-		const result = await apiTool.request(url, 'GET', null, params);
-		const unitList = result.unitList;
+		const result = await apiTool.request(url, 'GET', null, params)
+		const unitList = result.unitList
 		if (unitList === undefined)
-			throw new Error('Unit list not found is HTTP response');
-		return {ok: true, unitList: unitList};
+			throw new Error('Unit list not found is HTTP response')
+		return {ok: true, unitList: unitList}
 	}
 	catch (error) {
 		return {
 			ok: false, 
 			error: (error.message !== undefined) ? error.message : error
-		};
+		}
 	}
 }
 
-exports.getUnitDetails = async function (idUnit, params) {
-	assert(idUnit !== undefined);
-	assert(params !== undefined);
+const getUnitDetails = async function (idUnit, params) {
 	if (isNaN(idUnit))
-		throw new Error('Argument <idUnit> is not a number');
-	const url = `unit/${idUnit}`;
+		throw new Error('Argument <idUnit> is not a number')
+	const url = `${apiVersion}/unit/${idUnit}`
 	try {
-		const result = await apiTool.request(url, 'GET', null, null);
-		const unit = result.unit;
+		const result = await apiTool.request(url, 'GET', null, null)
+		const unit = result.unit
 		if (unit === undefined)
-			throw new Error('Unit not found is HTTP response');
-		return {ok: true, unit: unit};
+			throw new Error('Unit not found is HTTP response')
+		return {ok: true, unit: unit}
+	}
+	catch (error) {
+		return {
+			ok: false,
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
+const editUnit = async function (unit) {
+	if (typeof(unit) !== 'object')
+		throw new Error('Argument <unit> is not an object')
+	const url = `${apiVersion}/unit/edit`
+	try {
+		const result = await apiTool.request(url, 'POST', { unit }, null)
+		unit = result.unit
+		if (unit === undefined)
+			throw new Error('Unit not found is HTTP response')
+		return {ok: true, unit: unit}
 	}
 	catch (error) {
 		return {
 			ok: false, 
 			error: (error.message !== undefined) ? error.message : error
-		};
+		}
 	}
 }
 
+const unitApi = {
+	getUnitList,
+	getUnitDetails,
+	editUnit 
+}
+export default unitApi

@@ -14,57 +14,78 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-'use script';
-const assert = require('assert');
-const ApiToolSingleton = require('./api-tools.js');
-const apiTool = ApiToolSingleton.getInstance();
-const ModelSingleton = require('./model.js');
-const model  = ModelSingleton.getInstance();
+'use script'
+import ApiToolsSingleton from './api-tools'
+const apiTool = ApiToolsSingleton.getInstance()
+const apiVersion = 'v1'
 
-exports.getCompanyList = async function (filters, params) {
-	assert(filters !== undefined);
-	assert(params !== undefined);
-	const url = 'company/list';
+const getCompanyList = async function (filters, params) {
+	const url = `${apiVersion}/company/list`
+	if (! params)
+		params = {}
 	/* TODO cleanup
 	for (const filter of Object.keys(filters)) 
-		url.searchParams.append(filter, filters[filter]);
+		url.searchParams.append(filter, filters[filter])
 	if (params.resultsPerPage !== undefined)
-		url.searchParams.append('resultsPerPage', params.resultsPerPage);
+		url.searchParams.append('resultsPerPage', params.resultsPerPage)
 		*/
-	params.filters = filters;
+	params.filters = filters
 	try {
-		const result = await apiTool.request(url, 'GET', null, params);
-		const companyList = result.companyList;
+		const result = await apiTool.request(url, 'GET', null, params)
+		const companyList = result.companyList
 		if (companyList === undefined)
-			throw new Error('Company list not found is HTTP response');
-		return {ok: true, companyList: companyList};
+			throw new Error('Company list not found is HTTP response')
+		return {ok: true, companyList: companyList}
 	}
 	catch (error) {
 		return {
 			ok: false, 
 			error: (error.message !== undefined) ? error.message : error
-		};
+		}
 	}
 }
 
-exports.getCompanyDetails = async function (idCompany, params) {
-	assert(idCompany !== undefined);
-	assert(params !== undefined);
+const getCompanyDetails = async function (idCompany, params) {
 	if (isNaN(idCompany))
-		throw new Error('Argument <idCompany> is not a number');
-	const url = `company/${idCompany}`;
+		throw new Error('Argument <idCompany> is not a number')
+	const url = `${apiVersion}/company/${idCompany}`
 	try {
-		const result = await apiTool.request(url, 'GET', null, null);
-		const company = result.company;
+		const result = await apiTool.request(url, 'GET', null, null)
+		const company = result.company
 		if (company === undefined)
-			throw new Error('Company not found is HTTP response');
-		return {ok: true, company: company};
+			throw new Error('Company not found is HTTP response')
+		return {ok: true, company: company}
+	}
+	catch (error) {
+		return {
+			ok: false,
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
+const editCompany = async function (company) {
+	if (typeof(company) !== 'object')
+		throw new Error('Argument <company> is not an object')
+	const url = `${apiVersion}/company/edit`
+	try {
+		const result = await apiTool.request(url, 'POST', { company }, null)
+		company = result.company
+		if (company === undefined)
+			throw new Error('Company not found is HTTP response')
+		return {ok: true, company: company}
 	}
 	catch (error) {
 		return {
 			ok: false, 
 			error: (error.message !== undefined) ? error.message : error
-		};
+		}
 	}
 }
 
+const companyApi = {
+	getCompanyList,
+	getCompanyDetails,
+	editCompany 
+}
+export default companyApi

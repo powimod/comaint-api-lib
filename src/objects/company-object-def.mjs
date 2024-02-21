@@ -15,49 +15,57 @@
  */
 
 'use strict'
-const companyObjectDef = { 
+const companyObjectDef = {
 	"id" : {
 		"type": "id",
 		"mandatory": "true",
-	}, 
+	},
 	"name" : {
 		"type": "string",
 		"minimum": "2",
 		"maximum": "64",
 		"mandatory": "true",
-	}, 
+	},
 	"locked" : {
 		"type": "boolean",
 		"default": "false",
 		"mandatory": "true",
-	}, 
+	},
 	"address" : {
 		"type": "text",
 		"maximum": "128",
 		"default": "",
 		"mandatory": "true",
-	}, 
+	},
 	"city" : {
 		"type": "text",
 		"maximum": "64",
 		"default": "",
 		"mandatory": "true",
-	}, 
+	},
 	"zipCode" : {
 		"type": "text",
+		"field": "zip_code",
 		"maximum": "16",
 		"default": "",
 		"mandatory": "true",
-	}, 
+	},
 	"country" : {
 		"type": "text",
 		"maximum": "32",
 		"default": "",
 		"mandatory": "true",
-	}, 
+	},
 	"logoUid" : {
 		"type": "image",
+		"field": "logo_uid",
 		"mandatory": "true",
+	}, 
+	"managerId" : {
+		"type": "link",
+		"target" : "Company",
+		"field" : "id_manager",
+		"table" : "companies"
 	},
 }
 

@@ -1,7 +1,7 @@
 /* Comaint Single Page Application frontend (Single page application frontend of Comaint project)
  * Copyright (C) 2023-2024 Dominique Parisot
  *
- * user-object-def.mjs
+ * article-object-def.mjs
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the 
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or
@@ -15,84 +15,83 @@
  */
 
 'use strict'
-const userObjectDef = {
+const articleObjectDef = {
 	"id" : {
 		"type": "id",
 		"mandatory": "true",
 	},
-	"email" : {
-		"type": "email",
-		"minimum": "3",
+	"name" : {
+		"type": "string",
+		"minimum": "2",
 		"maximum": "128",
 		"mandatory": "true",
 	},
-	"password" : {
+	"description" : {
 		"type": "string",
-		"minimum": "8",
-		"maximum": "70",
-		"mandatory": "true",
-		"secret": "true",
+		"maximum": "256",
+		"mandatory": "false",
 	},
-	"firstname" : {
+	"localisation" : {
 		"type": "string",
-		"maximum": "30",
-		"mandatory": "true",
+		"maximum": "32",
+		"mandatory": "false",
 	},
-	"lastname" : {
+	"reference" : {
 		"type": "string",
-		"maximum": "30",
-		"mandatory": "true",
+		"maximum": "32",
+		"mandatory": "false",
 	},
-	"accountLocked" : {
-		"type": "boolean",
-		"field": "account_locked",
-		"default": "false",
-		"mandatory": "true",
-	},
-	"validationCode" : {
+	"stockQuantity" : {
 		"type": "integer",
-		"field": "validation_code",
+		"field": "stock_quantity",
 		"minimum": "0",
-		"maximum": "99999",
+		"maximum": "127",
 		"default": "0",
-		"mandatory": "false",
-	},
-	"phone" : {
-		"type": "string",
-		"maximum": "25",
-		"default": "",
-		"mandatory": "false",
-	},
-	"active" : {
-		"type": "boolean",
-		"default": "true",
 		"mandatory": "true",
 	},
-	"lastUse" : {
-		"type": "datetime",
-		"field": "last_use",
-		"mandatory": "false",
-	},
-	"administrator" : {
-		"type": "boolean",
-		"default": "false",
+	"reservedQuantity" : {
+		"type": "integer",
+		"field": "reserved_quantity",
+		"minimum": "0",
+		"maximum": "127",
+		"default": "0",
 		"mandatory": "true",
 	},
-	"stockRole" : {
+	"orderQuantity" : {
 		"type": "integer",
-		"field": "stock_role",
+		"field": "order_quantity",
 		"minimum": "0",
-		"maximum": "4",
+		"maximum": "127",
 		"default": "0",
-		"mandatory": "false",
+		"mandatory": "true",
 	},
-	"parkRole" : {
+	"minimumQuantity" : {
 		"type": "integer",
-		"field": "park_role",
+		"field": "minimum_quantity",
 		"minimum": "0",
-		"maximum": "4",
+		"maximum": "127",
 		"default": "0",
-		"mandatory": "false",
+		"mandatory": "true",
+	},
+	"quantityToOrder" : {
+		"type": "integer",
+		"field": "quantity_to_order",
+		"minimum": "0",
+		"maximum": "127",
+		"default": "0",
+		"mandatory": "true",
+	}, 
+	"articleSubCategoryId" : {
+		"type": "link",
+		"target" : "ArticleSubCategory",
+		"field" : "id_article_sub_category",
+		"table" : "article_subcategories"
+	}, 
+	"sectionId" : {
+		"type": "link",
+		"target" : "Section",
+		"field" : "id_section",
+		"table" : "sections"
 	}, 
 	"companyId" : {
 		"type": "link",
@@ -102,4 +101,4 @@ const userObjectDef = {
 	},
 }
 
-export default userObjectDef
+export default articleObjectDef

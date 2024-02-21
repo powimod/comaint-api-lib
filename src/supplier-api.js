@@ -1,7 +1,7 @@
 /* Comaint API libary project (Javascript libary to easily access Comain API)
  * Copyright (C) 2023-2024 Dominique Parisot
  *
- * subscription-api.js
+ * supplier-api.js
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the 
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or
@@ -19,8 +19,8 @@ import ApiToolsSingleton from './api-tools'
 const apiTool = ApiToolsSingleton.getInstance()
 const apiVersion = 'v1'
 
-const getSubscriptionList = async function (filters, params) {
-	const url = `${apiVersion}/subscription/list`
+const getSupplierList = async function (filters, params) {
+	const url = `${apiVersion}/supplier/list`
 	if (! params)
 		params = {}
 	/* TODO cleanup
@@ -32,10 +32,10 @@ const getSubscriptionList = async function (filters, params) {
 	params.filters = filters
 	try {
 		const result = await apiTool.request(url, 'GET', null, params)
-		const subscriptionList = result.subscriptionList
-		if (subscriptionList === undefined)
-			throw new Error('Subscription list not found is HTTP response')
-		return {ok: true, subscriptionList: subscriptionList}
+		const supplierList = result.supplierList
+		if (supplierList === undefined)
+			throw new Error('Supplier list not found is HTTP response')
+		return {ok: true, supplierList: supplierList}
 	}
 	catch (error) {
 		return {
@@ -45,16 +45,16 @@ const getSubscriptionList = async function (filters, params) {
 	}
 }
 
-const getSubscriptionDetails = async function (idSubscription, params) {
-	if (isNaN(idSubscription))
-		throw new Error('Argument <idSubscription> is not a number')
-	const url = `${apiVersion}/subscription/${idSubscription}`
+const getSupplierDetails = async function (idSupplier, params) {
+	if (isNaN(idSupplier))
+		throw new Error('Argument <idSupplier> is not a number')
+	const url = `${apiVersion}/supplier/${idSupplier}`
 	try {
 		const result = await apiTool.request(url, 'GET', null, null)
-		const subscription = result.subscription
-		if (subscription === undefined)
-			throw new Error('Subscription not found is HTTP response')
-		return {ok: true, subscription: subscription}
+		const supplier = result.supplier
+		if (supplier === undefined)
+			throw new Error('Supplier not found is HTTP response')
+		return {ok: true, supplier: supplier}
 	}
 	catch (error) {
 		return {
@@ -64,16 +64,16 @@ const getSubscriptionDetails = async function (idSubscription, params) {
 	}
 }
 
-const editSubscription = async function (subscription) {
-	if (typeof(subscription) !== 'object')
-		throw new Error('Argument <subscription> is not an object')
-	const url = `${apiVersion}/subscription/edit`
+const editSupplier = async function (supplier) {
+	if (typeof(supplier) !== 'object')
+		throw new Error('Argument <supplier> is not an object')
+	const url = `${apiVersion}/supplier/edit`
 	try {
-		const result = await apiTool.request(url, 'POST', { subscription }, null)
-		subscription = result.subscription
-		if (subscription === undefined)
-			throw new Error('Subscription not found is HTTP response')
-		return {ok: true, subscription: subscription}
+		const result = await apiTool.request(url, 'POST', { supplier }, null)
+		supplier = result.supplier
+		if (supplier === undefined)
+			throw new Error('Supplier not found is HTTP response')
+		return {ok: true, supplier: supplier}
 	}
 	catch (error) {
 		return {
@@ -83,9 +83,9 @@ const editSubscription = async function (subscription) {
 	}
 }
 
-const subscriptionApi = {
-	getSubscriptionList,
-	getSubscriptionDetails,
-	editSubscription 
+const supplierApi = {
+	getSupplierList,
+	getSupplierDetails,
+	editSupplier 
 }
-export default subscriptionApi
+export default supplierApi

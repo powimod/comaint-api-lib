@@ -1,7 +1,7 @@
 /* Comaint Single Page Application frontend (Single page application frontend of Comaint project)
  * Copyright (C) 2023-2024 Dominique Parisot
  *
- * unit-object-def.mjs
+ * supplier-object-def.mjs
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the 
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or
@@ -15,7 +15,7 @@
  */
 
 'use strict'
-const unitObjectDef = {
+const supplierObjectDef = {
 	"id" : {
 		"type": "id",
 		"mandatory": "true",
@@ -26,39 +26,13 @@ const unitObjectDef = {
 		"maximum": "32",
 		"mandatory": "true",
 	},
-	"description" : {
+	"website" : {
 		"type": "string",
 		"mandatory": "false",
 	},
 	"address" : {
 		"type": "text",
-		"maximum": "128",
-		"default": "",
-		"mandatory": "true",
-	},
-	"city" : {
-		"type": "text",
-		"maximum": "64",
-		"default": "",
-		"mandatory": "true",
-	},
-	"zipCode" : {
-		"type": "text",
-		"field": "zip_code",
-		"maximum": "16",
-		"default": "",
-		"mandatory": "true",
-	},
-	"country" : {
-		"type": "text",
-		"maximum": "32",
-		"default": "",
-		"mandatory": "true",
-	},
-	"planUid" : {
-		"type": "image",
-		"field": "plan_uid",
-		"mandatory": "true",
+		"mandatory": "false",
 	}, 
 	"companyId" : {
 		"type": "link",
@@ -68,4 +42,4 @@ const unitObjectDef = {
 	},
 }
 
-export default unitObjectDef
+export default supplierObjectDef

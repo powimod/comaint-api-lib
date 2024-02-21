@@ -14,57 +14,78 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-'use script';
-const assert = require('assert');
-const ApiToolSingleton = require('./api-tools.js');
-const apiTool = ApiToolSingleton.getInstance();
-const ModelSingleton = require('./model.js');
-const model  = ModelSingleton.getInstance();
+'use script'
+import ApiToolsSingleton from './api-tools'
+const apiTool = ApiToolsSingleton.getInstance()
+const apiVersion = 'v1'
 
-exports.getUserList = async function (filters, params) {
-	assert(filters !== undefined);
-	assert(params !== undefined);
-	const url = 'user/list';
+const getUserList = async function (filters, params) {
+	const url = `${apiVersion}/user/list`
+	if (! params)
+		params = {}
 	/* TODO cleanup
 	for (const filter of Object.keys(filters)) 
-		url.searchParams.append(filter, filters[filter]);
+		url.searchParams.append(filter, filters[filter])
 	if (params.resultsPerPage !== undefined)
-		url.searchParams.append('resultsPerPage', params.resultsPerPage);
+		url.searchParams.append('resultsPerPage', params.resultsPerPage)
 		*/
-	params.filters = filters;
+	params.filters = filters
 	try {
-		const result = await apiTool.request(url, 'GET', null, params);
-		const userList = result.userList;
+		const result = await apiTool.request(url, 'GET', null, params)
+		const userList = result.userList
 		if (userList === undefined)
-			throw new Error('User list not found is HTTP response');
-		return {ok: true, userList: userList};
+			throw new Error('User list not found is HTTP response')
+		return {ok: true, userList: userList}
 	}
 	catch (error) {
 		return {
 			ok: false, 
 			error: (error.message !== undefined) ? error.message : error
-		};
+		}
 	}
 }
 
-exports.getUserDetails = async function (idUser, params) {
-	assert(idUser !== undefined);
-	assert(params !== undefined);
+const getUserDetails = async function (idUser, params) {
 	if (isNaN(idUser))
-		throw new Error('Argument <idUser> is not a number');
-	const url = `user/${idUser}`;
+		throw new Error('Argument <idUser> is not a number')
+	const url = `${apiVersion}/user/${idUser}`
 	try {
-		const result = await apiTool.request(url, 'GET', null, null);
-		const user = result.user;
+		const result = await apiTool.request(url, 'GET', null, null)
+		const user = result.user
 		if (user === undefined)
-			throw new Error('User not found is HTTP response');
-		return {ok: true, user: user};
+			throw new Error('User not found is HTTP response')
+		return {ok: true, user: user}
+	}
+	catch (error) {
+		return {
+			ok: false,
+			error: (error.message !== undefined) ? error.message : error
+		}
+	}
+}
+
+const editUser = async function (user) {
+	if (typeof(user) !== 'object')
+		throw new Error('Argument <user> is not an object')
+	const url = `${apiVersion}/user/edit`
+	try {
+		const result = await apiTool.request(url, 'POST', { user }, null)
+		user = result.user
+		if (user === undefined)
+			throw new Error('User not found is HTTP response')
+		return {ok: true, user: user}
 	}
 	catch (error) {
 		return {
 			ok: false, 
 			error: (error.message !== undefined) ? error.message : error
-		};
+		}
 	}
 }
 
+const userApi = {
+	getUserList,
+	getUserDetails,
+	editUser 
+}
+export default userApi

@@ -1,7 +1,7 @@
 /* Comaint Single Page Application frontend (Single page application frontend of Comaint project)
  * Copyright (C) 2023-2024 Dominique Parisot
  *
- * user-object-def.mjs
+ * equipment-object-def.mjs
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the 
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or
@@ -15,84 +15,71 @@
  */
 
 'use strict'
-const userObjectDef = {
+const equipmentObjectDef = {
 	"id" : {
 		"type": "id",
 		"mandatory": "true",
 	},
-	"email" : {
-		"type": "email",
-		"minimum": "3",
+	"name" : {
+		"type": "string",
+		"minimum": "2",
 		"maximum": "128",
 		"mandatory": "true",
 	},
-	"password" : {
+	"description" : {
 		"type": "string",
-		"minimum": "8",
-		"maximum": "70",
-		"mandatory": "true",
-		"secret": "true",
+		"maximum": "256",
+		"mandatory": "false",
 	},
-	"firstname" : {
+	"notes" : {
+		"type": "text",
+		"maximum": "255",
+		"mandatory": "false",
+	},
+	"reference" : {
 		"type": "string",
-		"maximum": "30",
-		"mandatory": "true",
+		"maximum": "32",
+		"mandatory": "false",
 	},
-	"lastname" : {
-		"type": "string",
-		"maximum": "30",
-		"mandatory": "true",
-	},
-	"accountLocked" : {
-		"type": "boolean",
-		"field": "account_locked",
-		"default": "false",
-		"mandatory": "true",
-	},
-	"validationCode" : {
+	"xPos" : {
 		"type": "integer",
-		"field": "validation_code",
-		"minimum": "0",
-		"maximum": "99999",
-		"default": "0",
-		"mandatory": "false",
-	},
-	"phone" : {
-		"type": "string",
-		"maximum": "25",
-		"default": "",
-		"mandatory": "false",
-	},
-	"active" : {
-		"type": "boolean",
-		"default": "true",
+		"field": "x_pos",
+		"default": "-1",
 		"mandatory": "true",
 	},
-	"lastUse" : {
-		"type": "datetime",
-		"field": "last_use",
-		"mandatory": "false",
-	},
-	"administrator" : {
-		"type": "boolean",
-		"default": "false",
+	"yPos" : {
+		"type": "integer",
+		"field": "y_pos",
+		"default": "-1",
 		"mandatory": "true",
 	},
-	"stockRole" : {
+	"xSize" : {
 		"type": "integer",
-		"field": "stock_role",
-		"minimum": "0",
-		"maximum": "4",
-		"default": "0",
-		"mandatory": "false",
+		"field": "x_size",
+		"default": "-1",
+		"mandatory": "true",
 	},
-	"parkRole" : {
+	"ySize" : {
 		"type": "integer",
-		"field": "park_role",
-		"minimum": "0",
-		"maximum": "4",
-		"default": "0",
+		"field": "y_size",
+		"default": "-1",
+		"mandatory": "true",
+	},
+	"documents" : {
+		"type": "text",
 		"mandatory": "false",
+	}, 
+	"equipmentTypeId" : {
+		"type": "link",
+		"target" : "EquipmentType",
+		"field" : "id_equipment_type",
+		"table" : "equipment_types"
+	}, 
+	"sectionId" : {
+		"type": "link",
+		"target" : "Section",
+		"field" : "id_section",
+		"table" : "sections"
 	}, 
 	"companyId" : {
 		"type": "link",
@@ -102,4 +89,4 @@ const userObjectDef = {
 	},
 }
 
-export default userObjectDef
+export default equipmentObjectDef
